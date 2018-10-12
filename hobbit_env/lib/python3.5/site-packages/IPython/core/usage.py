@@ -60,7 +60,7 @@ Usage
     environment variable with this name and setting it to the desired path.
 
     For more information, see the manual available in HTML and PDF in your
-    installation, or online at http://ipython.org/documentation.html.
+    installation, or online at https://ipython.org/documentation.html.
 """
 
 interactive_usage = """
@@ -339,10 +339,3 @@ default_banner_parts = ["Python %s\n"%sys.version.split("\n")[0],
 ]
 
 default_banner = ''.join(default_banner_parts)
-
-# deprecated GUI banner
-
-default_gui_banner = '\n'.join([
-    'DEPRECATED: IPython.core.usage.default_gui_banner is deprecated and will be removed',
-    default_banner,
-])

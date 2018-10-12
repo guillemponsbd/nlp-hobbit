@@ -77,18 +77,20 @@ Inheritance diagram:
             Portions (c) 2009 by Robert Kern.
 :license: BSD License.
 """
+
 from contextlib import contextmanager
+import datetime
+import os
+import re
 import sys
 import types
-import re
-import datetime
 from collections import deque
+from inspect import signature
 from io import StringIO
 from warnings import warn
 
 from IPython.utils.decorators import undoc
 from IPython.utils.py3compat import PYPY
-from IPython.utils.signatures import signature
 
 __all__ = ['pretty', 'pprint', 'PrettyPrinter', 'RepresentationPrinter',
     'for_type', 'for_type_by_name']
@@ -102,7 +104,7 @@ _re_pattern_type = type(re.compile(''))
 
 def _safe_getattr(obj, attr, default=None):
     """Safe version of getattr.
-    
+
     Same as getattr, but will return ``default`` on any Exception,
     rather than raising.
     """
@@ -244,7 +246,7 @@ class PrettyPrinter(_PrettyPrinterBase):
             self.buffer.append(Breakable(sep, width, self))
             self.buffer_width += width
             self._break_outer_groups()
-            
+
     def break_(self):
         """
         Explicitly insert a newline into the output, maintaining correct indentation.
@@ -254,7 +256,7 @@ class PrettyPrinter(_PrettyPrinterBase):
         self.output.write(' ' * self.indentation)
         self.output_width = self.indentation
         self.buffer_width = 0
-        
+
 
     def begin_group(self, indent=0, open=''):
         """
@@ -280,7 +282,7 @@ class PrettyPrinter(_PrettyPrinterBase):
         self.group_stack.append(group)
         self.group_queue.enq(group)
         self.indentation += indent
-    
+
     def _enumerate(self, seq):
         """like enumerate, but with an upper limit on the number of items"""
         for idx, x in enumerate(seq):
@@ -290,7 +292,7 @@ class PrettyPrinter(_PrettyPrinterBase):
                 self.text('...')
                 return
             yield idx, x
-    
+
     def end_group(self, dedent=0, close=''):
         """End a group. See `begin_group` for more details."""
         self.indentation -= dedent
@@ -742,7 +744,6 @@ _type_pprinters = {
     tuple:                      _seq_pprinter_factory('(', ')'),
     list:                       _seq_pprinter_factory('[', ']'),
     dict:                       _dict_pprinter_factory('{', '}'),
-    
     set:                        _set_pprinter_factory('{', '}'),
     frozenset:                  _set_pprinter_factory('frozenset({', '})'),
     super:                      _super_pprint,
@@ -751,15 +752,20 @@ _type_pprinters = {
     types.FunctionType:         _function_pprint,
     types.BuiltinFunctionType:  _function_pprint,
     types.MethodType:           _repr_pprint,
-    
     datetime.datetime:          _repr_pprint,
     datetime.timedelta:         _repr_pprint,
     _exception_base:            _exception_pprint
 }
 
+# render os.environ like a dict
+_env_type = type(os.environ)
+# future-proof in case os.environ becomes a plain dict?
+if _env_type is not dict:
+    _type_pprinters[_env_type] = _dict_pprinter_factory('environ{', '}')
+
 try:
     # In PyPy, types.DictProxyType is dict, setting the dictproxy printer
-    # using dict.setdefault avoids overwritting the dict printer
+    # using dict.setdefault avoids overwriting the dict printer
     _type_pprinters.setdefault(types.DictProxyType,
                                _dict_pprinter_factory('dict_proxy({', '})'))
     _type_pprinters[types.ClassType] = _type_pprint
@@ -768,7 +774,7 @@ except AttributeError: # Python 3
     _type_pprinters[types.MappingProxyType] = \
         _dict_pprinter_factory('mappingproxy({', '})')
     _type_pprinters[slice] = _repr_pprint
-    
+
 try:
     _type_pprinters[long] = _repr_pprint
     _type_pprinters[unicode] = _repr_pprint

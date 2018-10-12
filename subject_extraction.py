@@ -5,12 +5,6 @@ import nltk
 from nltk.corpus import stopwords
 import re
 
-
-from datascience_utils.input_output \
-    import load_df
-
-
-
 NOUNS = ['NN', 'NNS', 'NNP', 'NNPS']
 VERBS = ['VB', 'VBG', 'VBD', 'VBN', 'VBP', 'VBZ']
 
