@@ -51,7 +51,8 @@ class _Description(object):
         entities = []
         sentences = self.tokenizer()[1]
 
-        # Part of Speech Tagging
+        # Part of Speech Tagging (just english)
+        # TODO Spanish Tagger
         sentences = [nltk.pos_tag(sent) for sent in sentences]
         for tagged_sentence in sentences:
             for chunk in nltk.ne_chunk(tagged_sentence):
@@ -63,7 +64,7 @@ class _Description(object):
 
         """Returns a word count frequency distribution"""
 
-        words = self.tokenizer()[1][0]
+        words = nltk.tokenize.word_tokenize(self.data)
         words = [word.lower() for word in words if word not in self.stop]
         fdist = nltk.FreqDist(words)
 
@@ -84,9 +85,20 @@ class _Description(object):
         # and most frequent nouns. It takes the first element in the list
         subject_nouns = [entity for entity in top_10_entities
                          if entity[0] in most_freq_nouns]
-        print
-        subject_nouns
+        print(subject_nouns)
         return subject_nouns[0]
+
+
+
+class SpanishTagger(object):
+
+    """ class to do POS-part of speech- tagger in Spanish.
+    The method is fully based upon N-gram """
+
+    def __init__(self):
+
+
+
 
 
 
